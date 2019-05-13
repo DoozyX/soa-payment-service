@@ -2,21 +2,16 @@ openapi: 3.0.0
 servers:
   - url: http://localhost:8081/
 info:
-  title: Pet Shop Example API
+  title: Payment Service API
   version: '0.1'
 paths:
-  /pets:
+  /payments:
     get:
       tags:
-        - Pets
-      operationId: app.get_pets
-      summary: Get all pets
+        - Payments
+      operationId: app.get_payments_history
+      summary: Get all payments
       parameters:
-        - name: animal_type
-          in: query
-          schema:
-            type: string
-            pattern: '^[a-zA-Z0-9]*$'
         - name: limit
           in: query
           schema:
@@ -25,93 +20,78 @@ paths:
             default: 100
       responses:
         '200':
-          description: Return pets
+          description: Return payment history
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Pet'
-  '/pets/{pet_id}':
+                  $ref: '#/components/schemas/Payment'
+  '/payment/{payment_id}':
     get:
       tags:
-        - Pets
-      operationId: app.get_pet
-      summary: Get a single pet
+        - Payments
+      operationId: app.get_payment
+      summary: Get a single payment info
       parameters:
-        - $ref: '#/components/parameters/pet_id'
+        - $ref: '#/components/parameters/payment_id'
       responses:
         '200':
-          description: Return pet
+          description: Return payment
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pet'
+                $ref: '#/components/schemas/Payment'
         '404':
-          description: Pet does not exist
-    put:
+          description: Payment does not exist
+  '/payment':
+    post:
       tags:
-        - Pets
-      operationId: app.put_pet
-      summary: Create or update a pet
-      parameters:
-        - $ref: '#/components/parameters/pet_id'
+        - Payments
+      operationId: app.make_payment
+      summary: Create a payment
       responses:
-        '200':
-          description: Pet updated
         '201':
-          description: New pet created
+          description: New payment created
       requestBody:
         content:
           application/json:
             schema:
-              x-body-name: pet
-              $ref: '#/components/schemas/Pet'
-    delete:
-      tags:
-        - Pets
-      operationId: app.delete_pet
-      summary: Remove a pet
-      parameters:
-        - $ref: '#/components/parameters/pet_id'
-      responses:
-        '204':
-          description: Pet was deleted
-        '404':
-          description: Pet does not exist
+              x-body-name: payment
+              $ref: '#/components/schemas/Payment'
 components:
   parameters:
-    pet_id:
-      name: pet_id
-      description: Pet's Unique identifier
+    payment_id:
+      name: payment_id
+      description: Payment's Unique identifier
       in: path
       required: true
       schema:
-        type: string
-        pattern: '^[a-zA-Z0-9-]+$'
+        type: integer
   schemas:
-    Pet:
+    Payment:
       type: object
       required:
-        - name
-        - animal_type
+        - user_id
+        - amount
       properties:
         id:
-          type: string
+          type: integer
           description: Unique identifier
-          example: '123'
+          example: 111
           readOnly: true
-        name:
-          type: string
-          description: Pet's name
-          example: Susie
-          minLength: 1
-          maxLength: 100
-        animal_type:
-          type: string
-          description: Kind of animal
-          example: cat
-          minLength: 1
+        user_id:
+          type: integer
+          description: User id who made payment
+          example: 1
+        amount:
+          type: number
+          description: amount of payment
+          example: 100.0
+        successful:
+          type: boolean
+          description: True if payment is successful
+          example: true
         created:
           type: string
           format: date-time
