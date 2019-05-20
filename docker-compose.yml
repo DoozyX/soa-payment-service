@@ -1,0 +1,13 @@
+version: '3'
+services:
+  app:
+    build:
+      .
+    ports:
+      - "8081:8081"
+    depends_on:
+      - "postgresdb"
+  postgresdb:
+    image: postgres
+    environment:
+      POSTGRES_DB: "soa-payment-service"

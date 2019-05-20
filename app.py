@@ -40,7 +40,7 @@ def add_credit_card(credit_card):
 
 
 logging.basicConfig(level=logging.INFO)
-db_session = orm.init_db('postgresql://postgres:admin@localhost:5432/soa-payment-service')
+db_session = orm.init_db('postgresql://postgres:admin@postgresdb:5432/soa-payment-service')
 app = connexion.FlaskApp(__name__)
 app.add_api('openapi.yaml')
 
