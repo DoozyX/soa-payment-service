@@ -26,6 +26,19 @@ def make_payment(payment):
     return {'successful': True}, 201
 
 
+def get_credit_card(owner_id):
+    logging.info("GETTING CREDIT CARD")
+    credit_card = db_session.query(orm.CreditCard).filter(orm.CreditCard.user_id == owner_id).one_or_none()
+    return credit_card.dump() if credit_card is not None else ('Not found', 404)
+
+
+def add_credit_card(credit_card):
+    logging.info('Creating payment')
+    db_session.add(orm.CreditCard(**credit_card))
+    db_session.commit()
+    return {'successful': True}, 201
+
+
 logging.basicConfig(level=logging.INFO)
 db_session = orm.init_db('postgresql://postgres:admin@localhost:5432/soa-payment-service')
 app = connexion.FlaskApp(__name__)

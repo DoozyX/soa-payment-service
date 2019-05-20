@@ -59,11 +59,50 @@ paths:
             schema:
               x-body-name: payment
               $ref: '#/components/schemas/Payment'
+  '/creditCard':
+    post:
+      tags:
+        - CreditCard
+      operationId: app.add_credit_card
+      summary: Add credit card
+      responses:
+        '201':
+          description: Added credit card
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: credit_card
+              $ref: '#/components/schemas/CreditCard'
+  '/creditCard/{owner_id}':
+    get:
+      tags:
+        - CreditCard
+      operationId: app.get_credit_card
+      summary: Get the credit card of user
+      parameters:
+        - $ref: '#/components/parameters/owner_id'
+      responses:
+        '200':
+          description: Credit card of the user if exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditCard'
+        '404':
+          description: Credit Card does not exist
 components:
   parameters:
     payment_id:
       name: payment_id
       description: Payment's Unique identifier
+      in: path
+      required: true
+      schema:
+        type: integer
+    owner_id:
+      name: owner_id
+      description: Owner's Unique identifier
       in: path
       required: true
       schema:
@@ -98,3 +137,37 @@ components:
           description: Creation time
           example: '2015-07-07T15:49:51.230+02:00'
           readOnly: true
+    CreditCard:
+      type: object
+      required:
+        - user_id
+        - full_name
+        - card_number
+        - expiration_date
+        - cvv
+      properties:
+        id:
+          type: integer
+          description: Unique identifier
+          example: 111
+          readOnly: true
+        user_id:
+          type: integer
+          description: Owner of the credit card
+          example: 111
+        full_name:
+          type: string
+          description: Full name of the owner
+          example: SLOBODAN KLETNIKOV
+        card_number:
+          type: string
+          description: Card Number
+          example: 5555 3333 4444 6666
+        expiration_date:
+          type: string
+          description: VALID THRU
+          example: 01/20
+        cvv:
+          type: string
+          description: CVV Code
+          example: 111
