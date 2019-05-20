@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, Boolean, Float, Integer, create_engine
+from sqlalchemy import Column, DateTime, Boolean, Float, String, Integer, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -12,6 +12,19 @@ class PaymentHistory(Base):
     amount = Column(Float())
     successful = Column(Boolean())
     created = Column(DateTime())
+
+    def dump(self):
+        return dict([(k, v) for k, v in vars(self).items() if not k.startswith('_')])
+
+
+class CreditCard(Base):
+    __tablename__ = 'credit_card'
+    id = Column(Integer(), primary_key=True)
+    user_id = Column(Integer())
+    full_name = Column(String())
+    card_number = Column(String())
+    expiration_date = Column(String())
+    cvv = Column(String())
 
     def dump(self):
         return dict([(k, v) for k, v in vars(self).items() if not k.startswith('_')])

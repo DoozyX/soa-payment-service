@@ -71,8 +71,9 @@ paths:
       requestBody:
         content:
           application/json:
-            x-body-name: creditCard
-            $ref: '#components/schemas/CreditCard'
+            schema:
+              x-body-name: credit_card
+              $ref: '#/components/schemas/CreditCard'
   '/creditCard/{owner_id}':
     get:
       tags:
@@ -170,4 +171,3 @@ components:
           type: string
           description: CVV Code
           example: 111
-
