@@ -5,7 +5,10 @@ services:
       .
     ports:
       - "8081:8081"
+    links:
+      - consul
     depends_on:
+      - consul
       - "postgresdb"
       - 'redis'
   postgresdb:
@@ -16,3 +19,24 @@ services:
     image: redis
     ports:
       - "6379:6379"
+  consul:
+    image: "consul:latest"
+    hostname: consul
+    volumes:
+      - ./consul/data:/consul/data
+      - ./consul/config:/consul/config
+    environment:
+      - "CONSUL_LOCAL_CONFIG={\"disable_update_check\": true, \"skip_leave_on_interrupt\": true}"
+    entrypoint:
+      - consul
+      - agent
+      - -server
+      - -data-dir=/consul
+      - -bootstrap-expect=1
+      - -ui
+      - -client=0.0.0.0
+    ports:
+      - "8400:8400"
+      - "8501:8500"
+      - "8600:53"
+

@@ -91,6 +91,19 @@ paths:
                 $ref: '#/components/schemas/CreditCard'
         '404':
           description: Credit Card does not exist
+  '/health':
+    get:
+      tags:
+        - Health
+      operationId: app.health_check
+      summary: Health Check
+      responses:
+        '200':
+          description: Helath status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
 components:
   parameters:
     payment_id:
@@ -171,3 +184,5 @@ components:
           type: string
           description: CVV Code
           example: 111
+    Health:
+      type: object

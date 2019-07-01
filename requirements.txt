@@ -1,3 +1,4 @@
+requests
 connexion==2.3.0
 connexion[swagger-ui]==2.3.0
 Flask==1.0.3

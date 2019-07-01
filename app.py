@@ -4,10 +4,16 @@ import logging
 import connexion
 import pybreaker
 import redis
+import socket
+import requests
+import json
 
 import orm
 from DBListener import DBListener
 
+BASE_CONSUL_URL = 'http://consul:8500'
+SERVICE_ADDRESS = socket.gethostbyname(socket.gethostname())
+PORT = 8081
 redis = redis.Redis(host='redis')
 
 db_breaker = pybreaker.CircuitBreaker(
@@ -55,6 +61,33 @@ def add_credit_card(credit_card):
     return {'successful': True}, 201
 
 
+def health_check():
+    data = {
+        'status': 'healthy'
+    }
+    return json.dumps(data)
+
+
+def register():
+    url = BASE_CONSUL_URL + '/v1/agent/service/register'
+    data = {
+        'Name': 'PythonApp',
+        'Tags': ['flask'],
+        'Address': SERVICE_ADDRESS,
+        'Port': 8080,
+        'Check': {
+            'http': 'http://{address}:{port}/health'.format(address=SERVICE_ADDRESS, port=PORT),
+            'interval': '10s'
+        }
+    }
+    logging.info('Service registration parameters: ', data)
+    res = requests.put(
+        url,
+        data=json.dumps(data)
+    )
+    return res.text
+
+
 logging.basicConfig(level=logging.INFO)
 db_session = orm.init_db('postgresql://postgres:admin@postgresdb:5432/soa-payment-service')
 app = connexion.FlaskApp(__name__)
@@ -69,4 +102,9 @@ def shutdown_session(exception=None):
 
 
 if __name__ == '__main__':
-    app.run(port=8081, use_reloader=False, threaded=False)
+    try:
+        logging.info(register())
+    except:
+        logging.info('Something wrong happened!')
+        pass
+    app.run(debug=True, host="0.0.0.0", port=PORT)
