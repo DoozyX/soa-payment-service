@@ -7,7 +7,12 @@ services:
       - "8081:8081"
     depends_on:
       - "postgresdb"
+      - 'redis'
   postgresdb:
     image: postgres
     environment:
       POSTGRES_DB: "soa-payment-service"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"

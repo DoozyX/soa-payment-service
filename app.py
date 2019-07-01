@@ -1,22 +1,36 @@
 #!/usr/bin/env python3
 import datetime
 import logging
-
 import connexion
+import pybreaker
+import redis
 
 import orm
+from DBListener import DBListener
+
+redis = redis.Redis(host='redis')
+
+db_breaker = pybreaker.CircuitBreaker(
+    fail_max=3,
+    reset_timeout=20,
+    state_storage=pybreaker.CircuitRedisStorage(pybreaker.STATE_CLOSED, redis),
+    listeners=[DBListener()]
+)
 
 
+@db_breaker
 def get_payments_history(limit):
     q = db_session.query(orm.PaymentHistory)
     return [p.dump() for p in q][:limit]
 
 
+@db_breaker
 def get_payment(payment_id):
     payment = db_session.query(orm.PaymentHistory).filter(orm.PaymentHistory.id == payment_id).one_or_none()
     return payment.dump() if payment is not None else ('Not found', 404)
 
 
+@db_breaker
 def make_payment(payment):
     logging.info('Creating payment')
     payment['created'] = datetime.datetime.utcnow()
@@ -26,12 +40,14 @@ def make_payment(payment):
     return {'successful': True}, 201
 
 
+@db_breaker
 def get_credit_card(owner_id):
     logging.info("GETTING CREDIT CARD")
     credit_card = db_session.query(orm.CreditCard).filter(orm.CreditCard.user_id == owner_id).one_or_none()
     return credit_card.dump() if credit_card is not None else ('Not found', 404)
 
 
+@db_breaker
 def add_credit_card(credit_card):
     logging.info('Creating payment')
     db_session.add(orm.CreditCard(**credit_card))
